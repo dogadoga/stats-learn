@@ -11,6 +11,12 @@ import math
 # この式はベルヌーイ試行をn回行って，ちょうどk回成功する確率を表している．
 # 例えば，コインをn回投げて，表がちょうどk回出る確率は，nCk p^k (1-p)^(n-k) で表される(p=0.5)．
 
+N = 50 # 試行回数
+Ps = [0.1, 0.5, 1/6, 3/4] # 成功確率
+COLORS = ['blue', 'lime', 'red', 'pink']
+YMIN = 0
+YMAX = 0.2
+
 def binomial(n, k, p):
 	""" 
 	二項分布の確率関数
@@ -45,30 +51,26 @@ def expection(n, p):
 x = np.arange(0, 51, 1)
 
 # Generate y values
-# コインを50回投げて，ちょうどi回表が出る確率を求める
-y = np.array([binomial(50, i, 0.5) for i in x])
-# 当たり確率p=1/6
-y2 = np.array([binomial(50, i, 1/6) for i in x])
-# 当たり確率p=3/4
-y3 = np.array([binomial(50, i, 3/4) for i in x])
+# 50回試行したときにちょうどi回あたる確率を求める
+ys = []
+for p in Ps:
+	ys.append(np.array([binomial(50, i, p) for i in x]))
 
 # plt.style.use('cyberpunk') # Set the style to cyberpunk
 plt.figure(figsize = (6,4))
 
-plt.scatter(x, y, marker = 'o', label='B(50; 0.5)')
-plt.scatter(x, y2, marker = 'o', c='lime', label='B(50; 1/6)')
-plt.scatter(x, y3, marker = 'o', c='red', label='B(50; 3/4)')
-
-# 平均値
-# n回試行したときの当たり回数の期待値
-plt.vlines(expection(50, 0.5), 0, 0.16, colors='blue', linestyles='dashed', label=f'E(X)={expection(50, 0.5):.2f}')
-plt.vlines(expection(50, 1/6), 0, 0.16, colors='lime', linestyles='dashed', label=f'E(X)={expection(50, 1/6):.2f}')
-plt.vlines(expection(50, 3/4), 0, 0.16, colors='red', linestyles='dashed', label=f'E(X)= {expection(50, 3/4):.2f}')
+# 二項分布
+for i,p in enumerate(Ps):
+	plt.scatter(x,ys[i], marker = 'o', label=f'B(50; {p})', c=COLORS[i])
+	# 平均値
+	# n回試行したときの当たり回数の期待値
+	plt.vlines(expection(N, p), YMIN, YMAX,linestyles='dashed', label=f'E(X)={expection(N, p):.2f}', colors=COLORS[i])
 
 plt.xlabel('Number of Successes')
 plt.ylabel('Probability')
 
 plt.legend()
 plt.grid()
+plt.ylim(YMIN, YMAX)
 
 plt.show()
